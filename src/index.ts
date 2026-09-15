@@ -4,8 +4,17 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { createAuthMiddleware } from './auth.js';
 import { createMcpServer } from './server.js';
 
+function corsMiddleware(req: express.Request, res: express.Response, next: express.NextFunction): void {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  if (req.method === 'OPTIONS') { res.sendStatus(200); return; }
+  next();
+}
+
 const app = express();
 app.use(express.json());
+app.use(corsMiddleware);
 
 const authToken = process.env.MCP_AUTH_TOKEN;
 if (!authToken) throw new Error('MCP_AUTH_TOKEN es obligatorio');
